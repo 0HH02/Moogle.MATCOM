@@ -1,0 +1,85 @@
+﻿@page "/"
+@using System.Windows;
+
+
+<PageTitle>Moogle!</PageTitle>
+
+<h1><img  class="imagen-moogle" src="zyro-image2.png" alt="lupa"></h1>
+
+@* <img src="D:/proyecto final/moogle-main/MoogleServer/Pages/lupa.png" alt="loco"> *@
+
+<input class="p-1 my-4 input-busqueda" @bind="query" placeholder="Introduzca su búsqueda" @onkeyup="RunQuery">
+
+<button type="default" class="btn btn-primary boton-busqueda" @onclick="RunQuery"><img  class="imagen-boton" src="lupa.png" alt="lupa"></button>
+
+@if (!string.IsNullOrEmpty(result.Suggestion)) {
+    <div class="suggestion">
+        <p>¿Quiso decir: <strong><button class="sugerencia" @onclick="RunSugerencia" >@result.Suggestion</button></strong>?</p>
+    </div>
+}
+
+@code {public static int contador = 0;}
+<ul class="results contenedor">
+@foreach (var Item in result.Items())
+{
+    <button class="contenedores" @ondblclick="() => AbrirArchivo.Abrir(Item.Title)">
+    <li class="titulos">
+        <div class="item">
+            <p class="title">@Item.Title</p>
+            <p>... @((MarkupString)@Item.Snippet) ...</p>
+        </div>
+    </li>
+    </button>
+    
+    Console.WriteLine(contador);
+    if(contador>=9)
+    {
+        
+        if(!mostrar)
+        {
+            <button class="boton-ver-mas" @onclick="() => mostrar=true">VER MÁS</button>
+            contador=0;
+            break;
+        }
+        else
+        {
+                <button class="contenedores" @ondblclick="() => AbrirArchivo.Abrir(Item.Title)">
+                <li class="titulos">
+                    <div class="item">
+                        <p class="title">@Item.Title</p>
+                        <p>... @((MarkupString)@Item.Snippet) ...</p>
+                    </div>
+                </li>
+                </button>
+        }
+        
+    }
+    contador++;
+    if (contador==result.Count)
+    {
+        mostrar=false;
+        contador=0;
+        <p class="frank">Gracias a Frank</p>
+    } 
+}
+</ul>
+
+
+@code {
+
+    private string query = "";
+    public static SearchResult result = new SearchResult();
+    private void RunQuery() {
+        result = Moogle.Query(query);
+    }
+    
+    private void RunSugerencia() {
+        result = Moogle.Query(result.Suggestion);
+        query = result.Suggestion;
+        //recursive add
+        
+
+    }
+    public static bool mostrar = false;
+    
+}
